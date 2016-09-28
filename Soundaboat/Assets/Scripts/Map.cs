@@ -31,7 +31,8 @@ public static class Map
         int id = 0;
         int type = 0;
         int count = 1;
-
+        int countObject = 1;
+        //Debug.Log(mapSize + " mapSize ");
         // Randomgenerates islands
         for (int z = 0; z < mapSize; z++)
         {
@@ -39,6 +40,7 @@ public static class Map
             {
                 id = 0;
                 count = 1;
+                //countObject = 1;
                 Island[] islands = new Island[9];
                 _map[x, z] = new MapPiece(islands, x, z);
 
@@ -48,28 +50,49 @@ public static class Map
                     {
                         if (Random.Range(0, 5) == 1 && count < 4)
                         {
+                            /*
                             type = Random.Range(1, islandTypes);
                             _map[x, z]._islands[id] = new Island(id, type, islandX, islandZ);
                             ++count;
+                            */                         
+                            if (Random.Range(0, 30) == 1 && countObject < 2)
+                            {
+                                _map[x, z]._islands[id] = new Island(id, 101, islandX, islandZ);
+                                ++countObject;
+                            }
+                            else
+                            {
+                                type = Random.Range(1, islandTypes);
+                                _map[x, z]._islands[id] = new Island(id, type, islandX, islandZ);
+                                ++count;
+                            }                
+
                         }
                         else
                         {
                             _map[x, z]._islands[id] = new Island(id, 0, islandX, islandZ);
                         }
                         ++id;
+
                     }
                 }
             }
         }
+
+
+        _map[0, 0]._islands[4]._type = 0;
+        _map[2, 2]._islands[4]._type = 101; //Temp object loaction
+
         /*
         foreach (MapPiece pice in Map._map)
         {
-            Debug.Log(pice._x + " " + pice._y + " x and y of water ");
+            Debug.Log(pice._x + " " + pice._z + " x and y of water ");
             for (int o = 0; o < 9; ++o)
             {
-                Debug.Log(pice._islands[o]._x + " " + pice._islands[o]._y + " x and y of island " + pice._islands[o]._type);
+                Debug.Log(pice._x + " " + pice._z + " x and y of water " + pice._islands[o]._x + " " + pice._islands[o]._z + " x and y of island " + pice._islands[o]._type);
             }
         }
         */
+        
     }
 }

@@ -6,6 +6,7 @@ using UnityStandardAssets.CrossPlatformInput;
     public class BoatUserControl : MonoBehaviour
     {
         private BoatController _boatController; // the car controller we want to use
+        public bool _moving;
 
 
         private void Awake()
@@ -20,7 +21,10 @@ using UnityStandardAssets.CrossPlatformInput;
             // pass the input to the car!
             float h = CrossPlatformInputManager.GetAxis("Horizontal");
             float v = CrossPlatformInputManager.GetAxis("Vertical");
-         
+            if (h != 0.0f || v != 0.0f)
+                _moving = true;
+            else
+                _moving = false;
             _boatController.Move(h, v, v);
         }
 }

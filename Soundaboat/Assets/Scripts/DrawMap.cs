@@ -5,12 +5,15 @@ using System.Collections.Generic;
 [System.Serializable]
 public class DrawMap : MonoBehaviour
 {
-    public static void DrawMapStart(int mapSize, GameObject water, GameObject[] Islands, float islandSizeX, float islandSizeZ)
+    public static void DrawMapStart(int mapSize, GameObject water, GameObject[] Islands, float islandSizeX, float islandSizeZ, GameObject objective)
     {
         int type = 0;
         int i = 0;
         int j = 0;
         int spawn = 0;
+
+        //Instantiate(objective, new Vector3((((2) * islandSizeX) + ((0) * (islandSizeX / 3))), 0, (((2) * islandSizeZ) + ((0) * (islandSizeZ / 3)))), Quaternion.identity);
+
         for (int z = -2; z < 3; ++z)
         {
             for (int x = -2; x < 3; ++x)
@@ -35,43 +38,42 @@ public class DrawMap : MonoBehaviour
                         type = Map._map[j, i]._islands[spawn]._type;
                         if (type != 0)
                         {
-                            Map._Instances[x + 2, z + 2, spawn+1] = Instantiate(Islands[type], new Vector3((((x) * islandSizeX) + ((l - 1) * (islandSizeX / 3))), 0, (((z) * islandSizeZ) + ((k - 1) * (islandSizeZ / 3)))), Quaternion.identity);
+                            if(type == 101)
+                            {
+                                Map._Instances[x + 2, z + 2, spawn + 1] = Instantiate(objective, new Vector3((((x) * islandSizeX) + ((l - 1) * (islandSizeX / 3))), 0, (((z) * islandSizeZ) + ((k - 1) * (islandSizeZ / 3)))), Quaternion.identity);
+
+                            }
+                            else
+                            {
+                                Map._Instances[x + 2, z + 2, spawn + 1] = Instantiate(Islands[type], new Vector3((((x) * islandSizeX) + ((l - 1) * (islandSizeX / 3))), 0, (((z) * islandSizeZ) + ((k - 1) * (islandSizeZ / 3)))), Quaternion.identity);
+
+                            }
                         }
                         spawn++;
+
+                       
 
                     }
                 }
 
             }
+            
         }
     }
 
-    public static void DrawMapUp(int mapSize, GameObject water, Vector3 currentWaterPiece, GameObject[] Islands, float islandSizeX, float islandSizeZ)
+    public static void DrawMapUp(int mapSize, GameObject water, Vector3 currentWaterPiece, int mapX, int mapZ, GameObject[] Islands, float islandSizeX, float islandSizeZ, GameObject objective)
     {
         int type = 0;
-        float tempZ = 0;
-        float tempX = 0;
-        int placeZ = 0;
-        int placeX = 0;
-        int placeZtemp = 0;
-        int placeXtemp = 0;
+        int tileX;
+        int tileZ;
         int spawn = 0;
         float drawPlaceZ = currentWaterPiece.z + (islandSizeZ * 3);
-        float drawPlaceX = currentWaterPiece.x;
-
-        tempZ = Mathf.Abs(drawPlaceZ) / (mapSize * islandSizeZ);
-        placeZ = (int)(Mathf.Abs(drawPlaceZ) / islandSizeZ) - mapSize * (int)tempZ;
-
-        tempX = Mathf.Abs(drawPlaceX) / (mapSize * islandSizeX);
-        placeX = (int)(Mathf.Abs(drawPlaceX) / islandSizeX) - mapSize * (int)tempX;
-
-        placeXtemp = placeX;
-        placeZtemp = placeZ;
-
-        if (placeZtemp > mapSize - 1) { placeZtemp = placeZtemp - mapSize; }
+        //float drawPlaceX = currentWaterPiece.x;
 
         for (int x = -2; x < 3; ++x)
         {
+            tileX = mapX;
+            tileZ = mapZ + 3;
             for (int delIsland = 1; delIsland < 10; ++delIsland)
             {
                 if(Map._Instances[x + 2, 0, delIsland] != null)
@@ -85,63 +87,80 @@ public class DrawMap : MonoBehaviour
                 Map._Instances[x + 2, run, 0] = Map._Instances[x + 2, run + 1, 0];
                 for (int insIsland = 1; insIsland < 10; ++insIsland)
                 {
-                    Map._Instances[x + 2, run, insIsland] = Map._Instances[x + 2, run + 1, insIsland];
+
+                    if (Map._Instances[x + 2, run + 1, insIsland] != null)
+                    {
+                        Map._Instances[x + 2, run, insIsland] = Map._Instances[x + 2, run + 1, insIsland];
+                    }
+                    else
+                    {
+                        Map._Instances[x + 2, run, insIsland] = null;
+                    }
+                    if (run == 3)
+                    {
+                        Map._Instances[x + 2, run + 1, insIsland] = null;
+                    }
                 }
-            }            
+            }     
+                
             Map._Instances[x + 2, 4,0] = Instantiate(water, new Vector3(((x) * islandSizeX) + currentWaterPiece.x, 0, drawPlaceZ), Quaternion.identity);
 
             spawn = 0;
 
-            placeXtemp = placeX + x;
-            if (placeXtemp > mapSize - 1)
+            if (tileZ >= mapSize)
             {
-                placeXtemp = placeXtemp - mapSize;
+                tileZ = tileZ - mapSize;
             }
-            if (placeXtemp < 0)
+            if (tileZ < 0)
             {
-                placeXtemp = placeXtemp + mapSize;
+                tileZ = tileZ + mapSize;
             }
+            tileX = tileX + x;
+            if (tileX >= mapSize)
+            {
+                tileX = tileX - mapSize;
+            }
+            if (tileX < 0)
+            {
+                tileX = tileX + mapSize;
+            }
+            //Debug.Log(tileX + "   " + tileZ + " x and Y Up ");
 
             for (int k = 0; k < 3; ++k)
             {
                 for (int l = 0; l < 3; ++l)
                 {
-                    type = Map._map[placeXtemp, placeZtemp]._islands[spawn]._type;
+                    type = Map._map[tileX, tileZ]._islands[spawn]._type;
                     if (type != 0)
                     {
-                        Map._Instances[x + 2, 4, spawn+1] = Instantiate(Islands[type], new Vector3((x * islandSizeX + currentWaterPiece.x) + ((l - 1) * (islandSizeX / 3)), 0, (drawPlaceZ) + ((k - 1) * (islandSizeZ / 3))), Quaternion.identity);
+                        if (type == 101)
+                        {
+                            Map._Instances[x + 2, 4, spawn + 1] = Instantiate(objective, new Vector3((x * islandSizeX + currentWaterPiece.x) + ((l - 1) * (islandSizeX / 3)), 0, (drawPlaceZ) + ((k - 1) * (islandSizeZ / 3))), Quaternion.identity);
+                        }
+                        else
+                        {
+                            Map._Instances[x + 2, 4, spawn + 1] = Instantiate(Islands[type], new Vector3((x * islandSizeX + currentWaterPiece.x) + ((l - 1) * (islandSizeX / 3)), 0, (drawPlaceZ) + ((k - 1) * (islandSizeZ / 3))), Quaternion.identity);
+                        }
                     }
                     spawn++;
                 }
             }
         }
     }
-    public static void DrawMapRight(int mapSize, GameObject water, Vector3 currentWaterPiece, GameObject[] Islands, float islandSizeX, float islandSizeZ)
+    public static void DrawMapRight(int mapSize, GameObject water, Vector3 currentWaterPiece, int mapX, int mapZ, GameObject[] Islands, float islandSizeX, float islandSizeZ, GameObject objective)
     {
         int type = 0;
-        float tempZ = 0;
-        float tempX = 0;
-        int placeZ = 0;
-        int placeX = 0;
-        int placeZtemp = 0;
-        int placeXtemp = 0;
+        int tileX;
+        int tileZ;
         int spawn = 0;
-        float drawPlaceZ = currentWaterPiece.z;
-        float drawPlaceX = currentWaterPiece.x + (islandSizeZ * 3);
-
-        tempZ = Mathf.Abs(drawPlaceZ) / (mapSize * islandSizeZ);
-        placeZ = (int)(Mathf.Abs(drawPlaceZ) / islandSizeZ) - mapSize * (int)tempZ;
-
-        tempX = Mathf.Abs(drawPlaceX) / (mapSize * islandSizeX);
-        placeX = (int)(Mathf.Abs(drawPlaceX) / islandSizeX) - mapSize * (int)tempX;
-
-        placeXtemp = placeX;
-        placeZtemp = placeZ;
-
-        if (placeXtemp > mapSize - 1) { placeXtemp = placeXtemp - mapSize; }
+        
+        //float drawPlaceZ = currentWaterPiece.z;
+        float drawPlaceX = currentWaterPiece.x + (islandSizeX * 3);
 
         for (int z = -2; z < 3; ++z)
         {
+            tileX = mapX + 3;
+            tileZ = mapZ;
             for (int delIsland = 1; delIsland < 10; ++delIsland)
             {
                 if (Map._Instances[0, z+2, delIsland] != null)
@@ -155,31 +174,59 @@ public class DrawMap : MonoBehaviour
                 Map._Instances[run, z+2, 0] = Map._Instances[run+1, z+2, 0];
                 for (int insIsland = 1; insIsland < 10; ++insIsland)
                 {
-                    Map._Instances[run, z+2, insIsland] = Map._Instances[run+1, z+2, insIsland];
+                    if (Map._Instances[run + 1, z + 2, insIsland] != null)
+                    {
+                        Map._Instances[run, z + 2, insIsland] = Map._Instances[run + 1, z + 2, insIsland];
+                    }
+                    else
+                    {
+                        Map._Instances[run, z + 2, insIsland] = null;
+                    }
+                    if (run == 3)
+                    {
+                        Map._Instances[run + 1, z + 2, insIsland] = null;
+                    }
+
                 }
             }
+            
             Map._Instances[4, z+2, 0] = Instantiate(water, new Vector3(drawPlaceX, 0, currentWaterPiece.z + (z * islandSizeZ)), Quaternion.identity);
 
             spawn = 0;
 
-            placeZtemp = placeZ + z;
-            if (placeZtemp > mapSize - 1)
-            {
-                placeZtemp = placeZtemp - mapSize;
-            }
-            if (placeZtemp < 0)
-            {
-                placeZtemp = placeZtemp + mapSize;
-            }
+            tileZ = tileZ + z;
 
+            if (tileZ >= mapSize)
+            {
+                tileZ = tileZ - mapSize;
+            }
+            if (tileZ < 0)
+            {
+                tileZ = tileZ + mapSize;
+            }
+            if (tileX >= mapSize)
+            {
+                tileX = tileX - mapSize;
+            }
+            if (tileX < 0)
+            {
+                tileX = tileX + mapSize;
+            }
             for (int k = 0; k < 3; ++k)
             {
                 for (int l = 0; l < 3; ++l)
                 {
-                    type = Map._map[placeXtemp, placeZtemp]._islands[spawn]._type;
+                    type = Map._map[tileX, tileZ]._islands[spawn]._type;
                     if (type != 0)
                     {
-                        Map._Instances[4, z + 2, spawn+1] = Instantiate(Islands[type], new Vector3((drawPlaceX) + ((l - 1) * (islandSizeX / 3)), 0, (z * islandSizeZ + currentWaterPiece.z) + ((k - 1) * (islandSizeZ / 3))), Quaternion.identity);
+                        if (type == 101)
+                        {
+                            Map._Instances[4, z + 2, spawn + 1] = Instantiate(objective, new Vector3((drawPlaceX) + ((l - 1) * (islandSizeX / 3)), 0, (z * islandSizeZ + currentWaterPiece.z) + ((k - 1) * (islandSizeZ / 3))), Quaternion.identity);
+                        }
+                        else
+                        {
+                            Map._Instances[4, z + 2, spawn + 1] = Instantiate(Islands[type], new Vector3((drawPlaceX) + ((l - 1) * (islandSizeX / 3)), 0, (z * islandSizeZ + currentWaterPiece.z) + ((k - 1) * (islandSizeZ / 3))), Quaternion.identity);
+                        }
                     }
                     spawn++;
 
@@ -187,39 +234,26 @@ public class DrawMap : MonoBehaviour
             }
         }
     }
-    public static void DrawMapLeft(int mapSize, GameObject water, Vector3 currentWaterPiece, GameObject[] Islands, float islandSizeX, float islandSizeZ)
+    public static void DrawMapLeft(int mapSize, GameObject water, Vector3 currentWaterPiece, int mapX, int mapZ, GameObject[] Islands, float islandSizeX, float islandSizeZ, GameObject objective)
     {
-        //Not yet dobe removal
         int type = 0;
-        float tempZ = 0;
-        float tempX = 0;
-        int placeZ = 0;
-        int placeX = 0;
-        int placeZtemp = 0;
-        int placeXtemp = 0;
+        int tileX;
+        int tileZ;
         int spawn = 0;
-        float drawPlaceZ = currentWaterPiece.z;
-        float drawPlaceX = currentWaterPiece.x - (islandSizeZ * 3);
 
-        tempZ = Mathf.Abs(drawPlaceZ) / (mapSize * islandSizeZ);
-        placeZ = (int)(Mathf.Abs(drawPlaceZ) / islandSizeZ) - mapSize * (int)tempZ;
 
-        tempX = Mathf.Abs(drawPlaceX) / (mapSize * islandSizeX);
-        placeX = (int)(Mathf.Abs(drawPlaceX) / islandSizeX) - mapSize * (int)tempX;
-
-        placeXtemp = mapSize - placeX;
-        placeZtemp = placeZ;
-
-        //Debug.Log(placeZtemp + " placeZtemp 1 ");
-        if (placeXtemp > mapSize - 1) { placeXtemp = placeXtemp - mapSize; }
-
+        //float drawPlaceZ = currentWaterPiece.z;
+        float drawPlaceX = currentWaterPiece.x - (islandSizeX * 3);
+        
         for (int z = -2; z < 3; ++z)
         {
+            tileX = mapX - 3;
+            tileZ = mapZ;
             for (int delIsland = 1; delIsland < 10; ++delIsland)
             {
                 if (Map._Instances[4, z + 2, delIsland] != null)
                 {
-                    Destroy(Map._Instances[4, z + 2, delIsland]);
+                    Destroy(Map._Instances[4, z + 2, delIsland]);                    
                 }
             }
             Destroy(Map._Instances[4, z + 2, 0]);
@@ -228,31 +262,58 @@ public class DrawMap : MonoBehaviour
                 Map._Instances[4-run, z + 2, 0] = Map._Instances[3 - run, z + 2, 0];
                 for (int insIsland = 1; insIsland < 10; ++insIsland)
                 {
-                    Map._Instances[4 - run, z + 2, insIsland] = Map._Instances[3 - run, z + 2, insIsland];
+                    if (Map._Instances[3 - run, z + 2, insIsland] != null)
+                    {
+                        Map._Instances[4 - run, z + 2, insIsland] = Map._Instances[3 - run, z + 2, insIsland];
+                    }
+                    else
+                    {
+                        Map._Instances[4 - run, z + 2, insIsland] = null;
+                    }
+                    if (run == 3)
+                    {
+                        Map._Instances[3 - run, z + 2, insIsland] = null;
+                    }
+
                 }
             }
+            
             Map._Instances[0, z + 2, 0] = Instantiate(water, new Vector3(drawPlaceX, 0, currentWaterPiece.z + (z * islandSizeZ)), Quaternion.identity);
             spawn = 0;
-
-            placeZtemp = placeZ + z;
-            if (placeZtemp > mapSize - 1)
+            tileZ = tileZ + z;
+            if (tileZ >= mapSize)
             {
-                placeZtemp = placeZtemp - mapSize;
+                tileZ = tileZ - mapSize;
             }
-            if (placeZtemp < 0)
+            if (tileZ < 0)
             {
-                placeZtemp = placeZtemp + mapSize;
+                tileZ = tileZ + mapSize;
+            }
+
+            if (tileX >= mapSize)
+            {
+                tileX = tileX - mapSize;
+            }
+            if (tileX < 0)
+            {
+                tileX = tileX + mapSize;
             }
 
             for (int k = 0; k < 3; ++k)
             {
                 for (int l = 0; l < 3; ++l)
                 {
-                    //Debug.Log(placeXtemp + " placeXtemp 1 ");
-                    type = Map._map[placeXtemp, placeZtemp]._islands[spawn]._type;
+                    type = Map._map[tileX, tileZ]._islands[spawn]._type;
                     if (type != 0)
                     {
-                        Map._Instances[0, z + 2, spawn+1] = Instantiate(Islands[type], new Vector3((drawPlaceX) + ((l - 1) * (islandSizeX / 3)), 0, (z * islandSizeZ + currentWaterPiece.z) + ((k - 1) * (islandSizeZ / 3))), Quaternion.identity);
+                        if (type == 101)
+                        {
+                            Map._Instances[0, z + 2, spawn + 1] = Instantiate(objective, new Vector3((drawPlaceX) + ((l - 1) * (islandSizeX / 3)), 0, (z * islandSizeZ + currentWaterPiece.z) + ((k - 1) * (islandSizeZ / 3))), Quaternion.identity);
+                        }
+                        else
+                        {
+                            Map._Instances[0, z + 2, spawn + 1] = Instantiate(Islands[type], new Vector3((drawPlaceX) + ((l - 1) * (islandSizeX / 3)), 0, (z * islandSizeZ + currentWaterPiece.z) + ((k - 1) * (islandSizeZ / 3))), Quaternion.identity);
+                        }
                     }
                     spawn++;
 
@@ -260,33 +321,20 @@ public class DrawMap : MonoBehaviour
             }
         }
     }
-    public static void DrawMapDown(int mapSize, GameObject water, Vector3 currentWaterPiece, GameObject[] Islands, float islandSizeX, float islandSizeZ)
+    public static void DrawMapDown(int mapSize, GameObject water, Vector3 currentWaterPiece, int mapX, int mapZ, GameObject[] Islands, float islandSizeX, float islandSizeZ, GameObject objective)
     {
-        //Not yet dobe removal
         int type = 0;
-        float tempZ = 0;
-        float tempX = 0;
-        int placeZ = 0;
-        int placeX = 0;
-        int placeZtemp = 0;
-        int placeXtemp = 0;
+        int tileX;
+        int tileZ;
         int spawn = 0;
         float drawPlaceZ = currentWaterPiece.z - (islandSizeZ * 3);
-        float drawPlaceX = currentWaterPiece.x;
+        //float drawPlaceX = currentWaterPiece.x;
 
-        tempZ = Mathf.Abs(drawPlaceZ) / (mapSize * islandSizeZ);
-        placeZ = (int)(Mathf.Abs(drawPlaceZ) / islandSizeZ) - mapSize * (int)tempZ;
-
-        tempX = Mathf.Abs(drawPlaceX) / (mapSize * islandSizeX);
-        placeX = (int)(Mathf.Abs(drawPlaceX) / islandSizeX) - mapSize * (int)tempX;
-
-        placeXtemp = placeX;
-        placeZtemp = mapSize - placeZ;
-
-        if (placeZtemp > mapSize - 1) { placeZtemp = placeZtemp - mapSize; }
 
         for (int x = -2; x < 3; ++x)
         {
+            tileX = mapX;
+            tileZ = mapZ - 3;
             for (int delIsland = 1; delIsland < 10; ++delIsland)
             {
                 if (Map._Instances[x + 2, 4, delIsland] != null)
@@ -301,31 +349,56 @@ public class DrawMap : MonoBehaviour
                 Map._Instances[x + 2, 4-run, 0] = Map._Instances[x + 2, 3-run, 0];
                 for (int insIsland = 1; insIsland < 10; ++insIsland)
                 {
-                    Map._Instances[x + 2, 4-run, insIsland] = Map._Instances[x + 2, 3-run, insIsland];
+                    if (Map._Instances[x + 2, 3 - run, insIsland] != null)
+                    {
+                        Map._Instances[x + 2, 4 - run, insIsland] = Map._Instances[x + 2, 3 - run, insIsland];
+                    }
+                    else
+                    {
+                        Map._Instances[x + 2, 4 - run, insIsland] = null;
+                    }
+                    if (run == 3)
+                    {
+                        Map._Instances[x + 2, 3 - run, insIsland] = null;
+                    }
                 }
             }
             Map._Instances[x + 2, 0, 0] = Instantiate(water, new Vector3(((x) * islandSizeX) + currentWaterPiece.x, 0, drawPlaceZ), Quaternion.identity);
             spawn = 0;
-
-            placeXtemp = placeX + x;
-            if (placeXtemp > mapSize - 1)
+            tileX = tileX + x;
+            if (tileZ >= mapSize)
             {
-                placeXtemp = placeXtemp - mapSize;
+                tileZ = tileZ - mapSize;
             }
-            if (placeXtemp < 0)
+            if (tileZ < 0)
             {
-                placeXtemp = placeXtemp + mapSize;
+                tileZ = tileZ + mapSize;
             }
 
+            if (tileX >= mapSize)
+            {
+                tileX = tileX - mapSize;
+            }
+            if (tileX < 0)
+            {
+                tileX = tileX + mapSize;
+            }
+            //Debug.Log(tileX + "   " + tileZ + " x and Y  down");
             for (int k = 0; k < 3; ++k)
             {
                 for (int l = 0; l < 3; ++l)
                 {
-                    //Debug.Log(placeXtemp + "  " + placeZtemp);
-                    type = Map._map[placeXtemp, placeZtemp]._islands[spawn]._type;
+                    type = Map._map[tileX, tileZ]._islands[spawn]._type;
                     if (type != 0)
                     {
-                        Map._Instances[x + 2, 0, spawn + 1] = Instantiate(Islands[type], new Vector3((x * islandSizeX + currentWaterPiece.x) + ((l - 1) * (islandSizeX / 3)), 0, (drawPlaceZ) + ((k - 1) * (islandSizeZ / 3))), Quaternion.identity);
+                        if (type == 101)
+                        {
+                            Map._Instances[x + 2, 0, spawn + 1] = Instantiate(objective, new Vector3((x * islandSizeX + currentWaterPiece.x) + ((l - 1) * (islandSizeX / 3)), 0, (drawPlaceZ) + ((k - 1) * (islandSizeZ / 3))), Quaternion.identity);
+                        }
+                        else
+                        {
+                            Map._Instances[x + 2, 0, spawn + 1] = Instantiate(Islands[type], new Vector3((x * islandSizeX + currentWaterPiece.x) + ((l - 1) * (islandSizeX / 3)), 0, (drawPlaceZ) + ((k - 1) * (islandSizeZ / 3))), Quaternion.identity);
+                        }
                     }
                     spawn++;
                 }
