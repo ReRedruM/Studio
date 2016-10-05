@@ -57,7 +57,7 @@ namespace UnityStandardAssets.ImageEffects
 
 			if (camera.stereoEnabled)
 			{
-				Matrix4x4 P0 = camera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
+				/*Matrix4x4 P0 = camera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
 				Matrix4x4 P1 = camera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
 
 				Vector4 projInfo0 = new Vector4
@@ -73,7 +73,7 @@ namespace UnityStandardAssets.ImageEffects
 					 ((1.0f + P1[1, 2]) / P1[1, 1]));
 
 				aoMaterial.SetVector("_ProjInfoLeft", projInfo0); // used for unprojection
-				aoMaterial.SetVector("_ProjInfoRight", projInfo1); // used for unprojection
+				aoMaterial.SetVector("_ProjInfoRight", projInfo1); // used for unprojection*/
 			}
 
 			aoMaterial.SetVector ("_ProjInfo", projInfo); // used for unprojection

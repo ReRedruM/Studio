@@ -73,10 +73,10 @@ namespace UnityStandardAssets.ImageEffects
 			{
 				for (int eye = 0; eye < 2; ++eye)
 				{
-					Matrix4x4 stereoViewMat = _camera.GetStereoViewMatrix(eye == 0 ? Camera.StereoscopicEye.Left : Camera.StereoscopicEye.Right);
-					Matrix4x4 stereoProjMat = _camera.GetStereoProjectionMatrix(eye == 0 ? Camera.StereoscopicEye.Left : Camera.StereoscopicEye.Right);
-					stereoProjMat = GL.GetGPUProjectionMatrix(stereoProjMat, true);
-					currentStereoViewProjMat[eye] = stereoProjMat * stereoViewMat;
+					//Matrix4x4 stereoViewMat = _camera.GetStereoViewMatrix(eye == 0 ? Camera.StereoscopicEye.Left : Camera.StereoscopicEye.Right);
+					//Matrix4x4 stereoProjMat = _camera.GetStereoProjectionMatrix(eye == 0 ? Camera.StereoscopicEye.Left : Camera.StereoscopicEye.Right);
+					//stereoProjMat = GL.GetGPUProjectionMatrix(stereoProjMat, true);
+					//currentStereoViewProjMat[eye] = stereoProjMat * stereoViewMat;
 				}
 			}
         }
